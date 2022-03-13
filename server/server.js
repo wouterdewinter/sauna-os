@@ -6,7 +6,7 @@ const ds18b20 = require("ds18b20");
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
 // 28-06201c5a979c
 
-const tempSensorId = "28-06201c5a979c";
+//const tempSensorId = "28-06201c5a979c";
 
 // raspberry pi pinout:
 // https://www.raspberrypi-spy.co.uk/2012/06/simple-guide-to-the-rpi-gpio-header-and-pins/
@@ -22,37 +22,38 @@ const relais = [
   new Gpio(7, 'out'),
 ]
 
-const app = express()
-const port = 8001
-
-app.get('/', (req, res) => {
-  res.send('Hello Worlsd!')
-})
-
-app.get('/temp', (req, res) => {
-  const temp = ds18b20.temperatureSync(tempSensorId);
-  res.send('Temp is: '+  temp)
-})
-
-app.get('/set', (req, res) => {
-  const switchNr = req.query.switchNr;
-  const enable = req.query.enable === "1"
-  res.send(`Setting switch ${switchNr} to ${enable}`);
-  relais[switchNr].writeSync(enable ? Gpio.HIGH: Gpio.LOW);
-})
-
 async function main() {
   const sensorId = await getSensorId();
   const temp = ds18b20.temperatureSync(sensorId);
-  console.log(`sensor: ${sensorId} has temp ${temp}`);
+  console.log(`Found sensor: ${sensorId} with current temperature ${temp}`);
+
+  const app = express()
+  const port = 8001
+
+  app.get('/', (req, res) => {
+    res.send('Hello Worlsd!')
+  })
+
+  app.get('/temp', (req, res) => {
+    const temp = ds18b20.temperatureSync(sensorId);
+    res.send(temp)
+  })
+
+  app.get('/set', (req, res) => {
+    const switchNr = req.query.switchNr;
+    const enable = req.query.enable === "1"
+    res.send(`Setting switch ${switchNr} to ${enable}`);
+    relais[switchNr].writeSync(enable ? Gpio.HIGH: Gpio.LOW);
+  })
+
+  app.listen(port, () => {
+    console.log(`Sauna-os listening on port ${port}`)
+  })
 }
 
 main();
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-
+// get id of the first ds18b20 sensor we find
 function getSensorId() {
   return new Promise((resolve, reject) => {
     ds18b20.sensors(function(err, ids) {
