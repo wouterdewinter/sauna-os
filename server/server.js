@@ -29,7 +29,8 @@ const switches = SIMULATE ? [] : [
 ];
 
 let currentTemp = null;
-let targetTemp = 50;
+let targetTemp = 25;
+let timer = 1800;
 let isWorking = false;
 let isOn = true;
 let isLightEnabled = false;
@@ -42,12 +43,38 @@ async function main() {
   const temp = getTemperature(sensorId);
   console.log(`Found sensor: ${sensorId} with current temperature ${temp}`);
 
-  const app = express();
+  // make sure the switches reflect the current status
+  updateSwitches();
 
+  // setup express app with cors
+  const app = express();
   app.use(cors());
 
   app.get('/', (req, res) => {
+    // todo send html file
     res.send('Hello World!')
+  })
+
+  app.get('/power/:enable', (req, res) => {
+    isOn = req.params.enable === "on";
+    updateSwitches()
+    return returnStatus(res);
+  })
+
+  app.get('/light/:enable', (req, res) => {
+    isLightEnabled = req.params.enable === "on";
+    updateSwitches()
+    return returnStatus(res);
+  })
+
+  app.get('/color/:enable', (req, res) => {
+    isColorEnabled = req.params.enable === "on";
+    updateSwitches()
+    return returnStatus(res);
+  })
+
+  app.get('/status', (req, res) => {
+    return returnStatus(res);
   })
 
   app.get('/temp', (req, res) => {
@@ -57,51 +84,87 @@ async function main() {
   app.get('/set', (req, res) => {
     const switchNr = req.query.switchNr;
     const enable = req.query.enable === "1";
-    if (!SIMULATE) {
-      switches[switchNr].writeSync(enable ? Gpio.HIGH: Gpio.LOW);
-    }
     console.log(`Setting switch ${switchNr} to ${enable}`);
-    res.json({result: "ok"})
+    panelsEnabled[switchNr] = enable;
+    updateSwitches()
+    return returnStatus(res);
   })
 
+  // start express app
   app.listen(PORT, () => {
     console.log(`Sauna-os listening on port ${PORT}`)
   })
 
-  // read temperature
+  // read temperature on regular interval
   setInterval(() => {
-    const temp = getTemperature(sensorId);
-    console.log(`Current temperature is ${temp}`);
-    currentTemp = temp;
+    currentTemp = getTemperature(sensorId);
+    console.log(`Current temperature is ${currentTemp}`);
   }, 3000);
 
-  // check if we need to start/stop heating
+  // main action loop, see if we need to take action
   setInterval(() => {
     if (isOn) {
+      // turn off if timer expired
+      if (timer > 0) {
+        timer--;
+      } else {
+        isOn = false;
+        isWorking = false;
+        updateSwitches();
+      }
+
       // check if we need to start heating
       if (!isWorking && currentTemp < targetTemp*(1-SENSITIVITY)) {
         isWorking = true;
         console.log("start heating");
+        updateSwitches();
       }
 
       // check if we need to stop heating
       if (isWorking &&currentTemp > targetTemp*(1+SENSITIVITY)) {
         isWorking = false;
         console.log("stop heating");
+        updateSwitches();
       }
     } else {
       // todo do some sanity checks?
     }
-  }, 3000);
+  }, 1000);
 
 }
 
 main();
 
+function updateSwitches() {
+  console.log("updating switches");
+  if (!SIMULATE) {
+    switches[0].writeSync(isOn && isWorking && panelsEnabled[0] ? Gpio.HIGH: Gpio.LOW);
+    switches[1].writeSync(isOn && isWorking && panelsEnabled[1] ? Gpio.HIGH: Gpio.LOW);
+    switches[2].writeSync(isOn && isWorking && panelsEnabled[2] ? Gpio.HIGH: Gpio.LOW);
+    switches[3].writeSync(isOn && isWorking && panelsEnabled[3] ? Gpio.HIGH: Gpio.LOW);
+    switches[4].writeSync(isOn && isWorking && panelsEnabled[4] ? Gpio.HIGH: Gpio.LOW);
+    switches[LIGHT_SWITCH_NR].writeSync(isLightEnabled ? Gpio.HIGH: Gpio.LOW);
+    switches[COLOR_SWITCH_NR].writeSync(isColorEnabled ? Gpio.HIGH: Gpio.LOW);
+  }
+}
+
+function returnStatus(res) {
+  return res.json({currentTemp, targetTemp, isWorking, isOn, isLightEnabled, isColorEnabled, panelsEnabled, timer})
+}
 
 function getTemperature(sensorId) {
   if (SIMULATE) {
-    return 22;
+    if (!currentTemp) {
+      currentTemp = 22;
+    }
+    if (isWorking) {
+      currentTemp+=0.3;
+    } else {
+      if (currentTemp>15) {
+        currentTemp-=0.1;
+      }
+    }
+    return currentTemp
   } else {
     return ds18b20.temperatureSync(sensorId);
   }
