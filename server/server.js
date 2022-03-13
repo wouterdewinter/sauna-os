@@ -6,8 +6,10 @@ const ds18b20 = require("ds18b20");
 const PORT = 8001;
 const LIGHT_SWITCH_NR = 5;
 const COLOR_SWITCH_NR = 6;
-const SIMULATE = true;
-const SENSITIVITY = 0.1;
+const SIMULATE = false;
+const SENSITIVITY = 0.05;
+const MAX_TEMP = 80;
+const MIN_TEMP = 20;
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
@@ -29,7 +31,7 @@ const switches = SIMULATE ? [] : [
 ];
 
 let currentTemp = null;
-let targetTemp = 25;
+let targetTemp = 50;
 let timer = 1800;
 let isWorking = false;
 let isOn = true;
@@ -57,6 +59,9 @@ async function main() {
 
   app.get('/power/:enable', (req, res) => {
     isOn = req.params.enable === "on";
+    if (!isOn) {
+      isWorking = false;
+    }
     updateSwitches()
     return returnStatus(res);
   })
@@ -77,13 +82,24 @@ async function main() {
     return returnStatus(res);
   })
 
+  app.get('/target', (req, res) => {
+    targetTemp = Number(req.query.targetTemp);
+    if (targetTemp > MAX_TEMP) {
+      targetTemp = MAX_TEMP;
+    }
+    if (targetTemp < MIN_TEMP) {
+      targetTemp = MIN_TEMP;
+    }
+    return returnStatus(res);
+  })
+
   app.get('/temp', (req, res) => {
     res.json({temp: currentTemp})
   })
 
   app.get('/set', (req, res) => {
     const switchNr = req.query.switchNr;
-    const enable = req.query.enable === "1";
+    const enable = req.query.enable === "on";
     console.log(`Setting switch ${switchNr} to ${enable}`);
     panelsEnabled[switchNr] = enable;
     updateSwitches()
@@ -161,7 +177,7 @@ function getTemperature(sensorId) {
       currentTemp+=0.3;
     } else {
       if (currentTemp>15) {
-        currentTemp-=0.1;
+        currentTemp-=0.3;
       }
     }
     return currentTemp

@@ -1,44 +1,89 @@
-import logo from './logo.svg';
 import './App.css';
 import axios from "axios";
 import {useEffect, useState} from "react";
 
 const url = "http://sauna.local:8001/";
+//const url = "http://localhost:8001/";
 
 function App() {
-  const [panelStatus, setPanelStatus] = useState([true, true, true, true, true]);
+  const initialStatus = {
+    "currentTemp": 22.8,
+    "targetTemp": 25,
+    "isWorking": true,
+    "isOn": true,
+    "isLightEnabled": false,
+    "isColorEnabled": false,
+    "panelsEnabled": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "timer": 1790
+  };
+
+  const [status, setStatus] = useState(initialStatus);
+
+  useEffect(() => {
+    const id = setInterval(async () => {
+      const response = await axios.get(url + 'status');
+      setStatus(response.data)
+    }, 3000)
+    return () => clearInterval(id)
+  })
 
   async function toggle(switchNr) {
-    const newStatus = [...panelStatus];
-    newStatus[switchNr] = !newStatus[switchNr];
-    setPanelStatus(newStatus);
-    console.log(switchNr, newStatus[switchNr])
-    await axios.get(url + 'set/', {params: {switchNr, enable: newStatus[switchNr] ? "1" : "0"}})
+    const response = await axios.get(url + 'set/', {params: {switchNr, enable: !status.panelsEnabled[switchNr] ? "on" : "off"}})
+    setStatus(response.data)
   }
 
+  async function togglePower() {
+    const response = await axios.get(`${url}power/${!status.isOn ? 'on' : 'off'}`);
+    setStatus(response.data)
+  }
+
+  async function setTarget(targetTemp) {
+    console.log({targetTemp})
+    const response = await axios.get(`${url}target`, {params: {targetTemp}});
+    setStatus(response.data)
+  }
 
   return (
     <div className="App">
       <header className="App-header">
-        <CurrentTemp />
+        <div>
+          Power:
+          <input type={"checkbox"} checked={status.isOn} onChange={togglePower}/>
+        </div>
+        <div>
+          Heating: {status.isWorking ? "yes" : "no"}
+        </div>
+        <div>
+          Target temp: {status.targetTemp}
+          <button onClick={() => setTarget(status.targetTemp + 5)}>+</button>
+          <button onClick={() => setTarget(status.targetTemp - 5)}>-</button>
+        </div>
+        <CurrentTemp temp={status.currentTemp} />
+        <br />
         <label>
-          <input type={"checkbox"} checked={panelStatus[0]} onChange={() => toggle(0 )}/>
+          <input type={"checkbox"} checked={status.panelsEnabled[0]} onChange={() => toggle(0 )}/>
           Links voor
         </label>
         <label>
-          <input type={"checkbox"} checked={panelStatus[1]} onChange={() => toggle(1 )}/>
+          <input type={"checkbox"} checked={status.panelsEnabled[1]} onChange={() => toggle(1 )}/>
           Rechts voor
         </label>
         <label>
-          <input type={"checkbox"} checked={panelStatus[2]} onChange={() => toggle(2 )}/>
+          <input type={"checkbox"} checked={status.panelsEnabled[2]} onChange={() => toggle(2 )}/>
           Links achter
         </label>
         <label>
-          <input type={"checkbox"} checked={panelStatus[3]} onChange={() => toggle(3 )}/>
+          <input type={"checkbox"} checked={status.panelsEnabled[3]} onChange={() => toggle(3 )}/>
           Rechts achter
         </label>
         <label>
-          <input type={"checkbox"} checked={panelStatus[4]} onChange={() => toggle(4 )}/>
+          <input type={"checkbox"} checked={status.panelsEnabled[4]} onChange={() => toggle(4 )}/>
           Onder
         </label>
       </header>
@@ -46,21 +91,9 @@ function App() {
   );
 }
 
-function CurrentTemp() {
-  const [temp, setTemp] = useState(null);
-
-  useEffect(() => {
-    const id = setInterval(async () => {
-      const response = await axios.get(url + 'temp');
-      const temp = response.data.temp;
-      setTemp(temp)
-    }, 3000)
-
-    return () => clearInterval(id)
-  })
-
+function CurrentTemp(props) {
   return <div>
-    Current: {temp || "-"}
+    Current: {props.temp || "-"}
   </div>
 }
 
