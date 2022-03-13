@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "ds18b20": "^0.1.0",
     "express": "^4.17.3",
     "nodemon": "^2.0.15",
     "onoff": "^6.0.3"

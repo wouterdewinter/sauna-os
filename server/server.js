@@ -1,6 +1,10 @@
 const Gpio = require('onoff').Gpio;
 const express = require('express')
 
+// tutorial for enabling the one-wire interface:
+// https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
+// 28-06201c5a979c
+
 const relais = [
   new Gpio(14, 'out'),
   new Gpio(15, 'out'),
