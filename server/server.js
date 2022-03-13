@@ -22,9 +22,6 @@ const relais = [
   new Gpio(7, 'out'),
 ]
 
-const temp = ds18b20.temperatureSync(tempSensorId);
-console.log("temp is:" +temp);
-
 const app = express()
 const port = 8001
 
@@ -44,7 +41,30 @@ app.get('/set', (req, res) => {
   relais[switchNr].writeSync(enable ? Gpio.HIGH: Gpio.LOW);
 })
 
+async function main() {
+  const sensorId = await getSensorId();
+  const temp = ds18b20.temperatureSync(sensorId);
+  console.log(`sensor: ${sensorId} has temp ${temp}`);
+}
+
+main();
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
+function getSensorId() {
+  return new Promise((resolve, reject) => {
+    ds18b20.sensors(function(err, ids) {
+      if (err) {
+        reject(err);
+      } else {
+        if (ids.length > 0) {
+          resolve(ids[0]);
+        } else {
+          reject(new Error("No temperature sensors found"))
+        }
+      }
+    });
+  })
+}
