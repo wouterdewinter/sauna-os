@@ -51,10 +51,9 @@ function CurrentTemp() {
 
   useEffect(() => {
     const id = setInterval(async () => {
-      console.log("ping");
-      // const response = await axios.get(url + 'temp');
-      // const temp = response.data.temperature;
-      // setTemp(temp)
+      const response = await axios.get(url + 'temp');
+      const temp = response.data.temp;
+      setTemp(temp)
     }, 3000)
 
     return () => clearInterval(id)
