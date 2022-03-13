@@ -1,5 +1,6 @@
 const Gpio = require('onoff').Gpio;
 const express = require('express')
+const cors = require('cors')
 const ds18b20 = require("ds18b20");
 
 // tutorial for enabling the one-wire interface:
@@ -29,6 +30,8 @@ async function main() {
 
   const app = express()
   const port = 8001
+
+  app.use(cors())
 
   app.get('/', (req, res) => {
     res.send('Hello Worlsd!')
