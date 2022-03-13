@@ -36,7 +36,7 @@ async function main() {
 
   app.get('/temp', (req, res) => {
     const temp = ds18b20.temperatureSync(sensorId);
-    res.send(temp)
+    res.json({temp})
   })
 
   app.get('/set', (req, res) => {
