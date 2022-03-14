@@ -1,6 +1,7 @@
 const Gpio = require('onoff').Gpio;
-const express = require('express')
-const cors = require('cors')
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
 const ds18b20 = require("ds18b20");
 
 const PORT = 8001;
@@ -52,10 +53,13 @@ async function main() {
   const app = express();
   app.use(cors());
 
-  app.get('/', (req, res) => {
-    // todo send html file
-    res.send('Hello World!')
-  })
+  // setup static file serving
+  app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
+
+  // serve html for root
+  app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
+  });
 
   app.get('/power/:enable', (req, res) => {
     isOn = req.params.enable === "on";
@@ -150,6 +154,15 @@ async function main() {
 }
 
 main();
+
+// allow switches to go off before close
+process.on('SIGINT', function() {
+  console.log('Exiting');
+  isWorking = false;
+  isOn = false;
+  updateSwitches();
+  process.exit(0);
+});
 
 function updateSwitches() {
   console.log("updating switches");
