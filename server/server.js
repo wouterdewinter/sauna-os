@@ -7,7 +7,7 @@ const ds18b20 = require("ds18b20");
 const PORT = 8001;
 const LIGHT_SWITCH_NR = 5;
 const COLOR_SWITCH_NR = 6;
-const SIMULATE = false;
+const SIMULATE = true;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;
@@ -21,7 +21,6 @@ const MIN_TEMP = 20;
 
 // interfaces to the relais
 const switches = SIMULATE ? [] : [
-  new Gpio(14, 'out'),
   new Gpio(15, 'out'),
   new Gpio(18, 'out'),
   new Gpio(23, 'out'),
@@ -29,13 +28,14 @@ const switches = SIMULATE ? [] : [
   new Gpio(25, 'out'),
   new Gpio(8, 'out'),
   new Gpio(7, 'out'),
+  new Gpio(12, 'out'),
 ];
 
 let currentTemp = null;
 let targetTemp = 50;
 let timer = 1800;
 let isWorking = false;
-let isOn = true;
+let isOn = false;
 let isLightEnabled = false;
 let isColorEnabled = false;
 let panelsEnabled = [true, true, true, true, true];

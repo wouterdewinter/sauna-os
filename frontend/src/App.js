@@ -9,8 +9,8 @@ function App() {
   const initialStatus = {
     "currentTemp": 22.8,
     "targetTemp": 25,
-    "isWorking": true,
-    "isOn": true,
+    "isWorking": false,
+    "isOn": false,
     "isLightEnabled": false,
     "isColorEnabled": false,
     "panelsEnabled": [
@@ -20,7 +20,7 @@ function App() {
       true,
       true
     ],
-    "timer": 1790
+    "timer": 1800
   };
 
   const [status, setStatus] = useState(initialStatus);
