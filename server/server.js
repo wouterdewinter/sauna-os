@@ -33,7 +33,7 @@ const switches = SIMULATE ? [] : [
 
 let currentTemp = null;
 let targetTemp = 50;
-let timer = 1800;
+let timer = 90;
 let isWorking = false;
 let isOn = false;
 let isLightEnabled = false;

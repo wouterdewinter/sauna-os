@@ -60,6 +60,9 @@ function App() {
           Heating: {status.isWorking ? "yes" : "no"}
         </div>
         <div>
+          Timer: {Math.floor(status.timer / 60) + ":" + status.timer % 60} remaining
+        </div>
+        <div>
           Target temp: {status.targetTemp}
           <button onClick={() => setTarget(status.targetTemp + 5)}>+</button>
           <button onClick={() => setTarget(status.targetTemp - 5)}>-</button>
