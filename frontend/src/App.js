@@ -43,6 +43,16 @@ function App() {
     setStatus(response.data)
   }
 
+  async function toggleLight() {
+    const response = await axios.get(`${url}light/${!status.isLightEnabled ? 'on' : 'off'}`);
+    setStatus(response.data)
+  }
+
+  async function toggleColor() {
+    const response = await axios.get(`${url}color/${!status.isColorEnabled ? 'on' : 'off'}`);
+    setStatus(response.data)
+  }
+
   async function setTarget(targetTemp) {
     console.log({targetTemp})
     const response = await axios.get(`${url}target`, {params: {targetTemp}});
@@ -55,6 +65,14 @@ function App() {
         <div>
           Power:
           <input type={"checkbox"} checked={status.isOn} onChange={togglePower}/>
+        </div>
+        <div>
+          Light:
+          <input type={"checkbox"} checked={status.isLightEnabled} onChange={toggleLight}/>
+        </div>
+        <div>
+          Color:
+          <input type={"checkbox"} checked={status.isColorEnabled} onChange={toggleColor}/>
         </div>
         <div>
           Heating: {status.isWorking ? "yes" : "no"}

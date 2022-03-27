@@ -11,6 +11,7 @@ const SIMULATE = false;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;
+const DEFAULT_TIMER = 90;
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
@@ -33,7 +34,7 @@ const switches = SIMULATE ? [] : [
 
 let currentTemp = null;
 let targetTemp = 50;
-let timer = 90;
+let timer = DEFAULT_TIMER;
 let isWorking = false;
 let isOn = false;
 let isLightEnabled = false;
@@ -65,6 +66,8 @@ async function main() {
     isOn = req.params.enable === "on";
     if (!isOn) {
       isWorking = false;
+      // reset timer to the default for a new session
+      timer = DEFAULT_TIMER;
     }
     updateSwitches()
     return returnStatus(res);
