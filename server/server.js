@@ -1,17 +1,17 @@
-const Gpio = require('onoff').Gpio;
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
+const Gpio = require("onoff").Gpio;
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 const ds18b20 = require("ds18b20");
 
 const PORT = 8001;
 const LIGHT_SWITCH_NR = 5;
 const COLOR_SWITCH_NR = 6;
-const SIMULATE = false;
+const SIMULATE = true;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;
-const DEFAULT_TIMER = 90;
+const DEFAULT_TIMER = 20;
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
@@ -20,21 +20,24 @@ const DEFAULT_TIMER = 90;
 // raspberry pi pinout:
 // https://www.raspberrypi-spy.co.uk/2012/06/simple-guide-to-the-rpi-gpio-header-and-pins/
 
-// interfaces to the relais
-const switches = SIMULATE ? [] : [
-  new Gpio(15, 'out'),
-  new Gpio(18, 'out'),
-  new Gpio(23, 'out'),
-  new Gpio(24, 'out'),
-  new Gpio(25, 'out'),
-  new Gpio(8, 'out'),
-  new Gpio(7, 'out'),
-  new Gpio(12, 'out'),
-];
+// interfaces to the relays
+const switches = SIMULATE
+  ? []
+  : [
+      new Gpio(15, "out"),
+      new Gpio(18, "out"),
+      new Gpio(23, "out"),
+      new Gpio(24, "out"),
+      new Gpio(25, "out"),
+      new Gpio(8, "out"),
+      new Gpio(7, "out"),
+      new Gpio(12, "out"),
+    ];
 
 let currentTemp = null;
 let targetTemp = 50;
 let timer = DEFAULT_TIMER;
+let status = "off"; // off, standby, heating
 let isWorking = false;
 let isOn = false;
 let isLightEnabled = false;
@@ -55,41 +58,41 @@ async function main() {
   app.use(cors());
 
   // setup static file serving
-  app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
+  app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
 
   // serve html for root
-  app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
+  app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname, "..", "frontend", "build", "index.html"));
   });
 
-  app.get('/power/:enable', (req, res) => {
+  app.get("/power/:enable", (req, res) => {
     isOn = req.params.enable === "on";
     if (!isOn) {
       isWorking = false;
       // reset timer to the default for a new session
       timer = DEFAULT_TIMER;
     }
-    updateSwitches()
+    updateSwitches();
     return returnStatus(res);
-  })
+  });
 
-  app.get('/light/:enable', (req, res) => {
+  app.get("/light/:enable", (req, res) => {
     isLightEnabled = req.params.enable === "on";
-    updateSwitches()
+    updateSwitches();
     return returnStatus(res);
-  })
+  });
 
-  app.get('/color/:enable', (req, res) => {
+  app.get("/color/:enable", (req, res) => {
     isColorEnabled = req.params.enable === "on";
-    updateSwitches()
+    updateSwitches();
     return returnStatus(res);
-  })
+  });
 
-  app.get('/status', (req, res) => {
+  app.get("/status", (req, res) => {
     return returnStatus(res);
-  })
+  });
 
-  app.get('/target', (req, res) => {
+  app.get("/target", (req, res) => {
     targetTemp = Number(req.query.targetTemp);
     if (targetTemp > MAX_TEMP) {
       targetTemp = MAX_TEMP;
@@ -98,25 +101,25 @@ async function main() {
       targetTemp = MIN_TEMP;
     }
     return returnStatus(res);
-  })
+  });
 
-  app.get('/temp', (req, res) => {
-    res.json({temp: currentTemp})
-  })
+  app.get("/temp", (req, res) => {
+    res.json({ temp: currentTemp });
+  });
 
-  app.get('/set', (req, res) => {
+  app.get("/set", (req, res) => {
     const switchNr = req.query.switchNr;
     const enable = req.query.enable === "on";
     console.log(`Setting switch ${switchNr} to ${enable}`);
     panelsEnabled[switchNr] = enable;
-    updateSwitches()
+    updateSwitches();
     return returnStatus(res);
-  })
+  });
 
   // start express app
   app.listen(PORT, () => {
-    console.log(`Sauna-os listening on port ${PORT}`)
-  })
+    console.log(`Sauna-os listening on port ${PORT}`);
+  });
 
   // read temperature on regular interval
   setInterval(() => {
@@ -137,14 +140,14 @@ async function main() {
       }
 
       // check if we need to start heating
-      if (!isWorking && currentTemp < targetTemp*(1-SENSITIVITY)) {
+      if (isOn && !isWorking && currentTemp < targetTemp * (1 - SENSITIVITY)) {
         isWorking = true;
         console.log("start heating");
         updateSwitches();
       }
 
       // check if we need to stop heating
-      if (isWorking &&currentTemp > targetTemp*(1+SENSITIVITY)) {
+      if (isWorking && currentTemp > targetTemp * (1 + SENSITIVITY)) {
         isWorking = false;
         console.log("stop heating");
         updateSwitches();
@@ -153,14 +156,13 @@ async function main() {
       // todo do some sanity checks?
     }
   }, 1000);
-
 }
 
 main();
 
 // allow switches to go off before close
-process.on('SIGINT', function() {
-  console.log('Exiting');
+process.on("SIGINT", function () {
+  console.log("Exiting");
   isWorking = false;
   isOn = false;
   updateSwitches();
@@ -170,18 +172,37 @@ process.on('SIGINT', function() {
 function updateSwitches() {
   console.log("updating switches");
   if (!SIMULATE) {
-    switches[0].writeSync(isOn && isWorking && panelsEnabled[0] ? Gpio.HIGH: Gpio.LOW);
-    switches[1].writeSync(isOn && isWorking && panelsEnabled[1] ? Gpio.HIGH: Gpio.LOW);
-    switches[2].writeSync(isOn && isWorking && panelsEnabled[2] ? Gpio.HIGH: Gpio.LOW);
-    switches[3].writeSync(isOn && isWorking && panelsEnabled[3] ? Gpio.HIGH: Gpio.LOW);
-    switches[4].writeSync(isOn && isWorking && panelsEnabled[4] ? Gpio.HIGH: Gpio.LOW);
-    switches[LIGHT_SWITCH_NR].writeSync(isLightEnabled ? Gpio.HIGH: Gpio.LOW);
-    switches[COLOR_SWITCH_NR].writeSync(isColorEnabled ? Gpio.HIGH: Gpio.LOW);
+    switches[0].writeSync(
+      isOn && isWorking && panelsEnabled[0] ? Gpio.HIGH : Gpio.LOW
+    );
+    switches[1].writeSync(
+      isOn && isWorking && panelsEnabled[1] ? Gpio.HIGH : Gpio.LOW
+    );
+    switches[2].writeSync(
+      isOn && isWorking && panelsEnabled[2] ? Gpio.HIGH : Gpio.LOW
+    );
+    switches[3].writeSync(
+      isOn && isWorking && panelsEnabled[3] ? Gpio.HIGH : Gpio.LOW
+    );
+    switches[4].writeSync(
+      isOn && isWorking && panelsEnabled[4] ? Gpio.HIGH : Gpio.LOW
+    );
+    switches[LIGHT_SWITCH_NR].writeSync(isLightEnabled ? Gpio.HIGH : Gpio.LOW);
+    switches[COLOR_SWITCH_NR].writeSync(isColorEnabled ? Gpio.HIGH : Gpio.LOW);
   }
 }
 
 function returnStatus(res) {
-  return res.json({currentTemp, targetTemp, isWorking, isOn, isLightEnabled, isColorEnabled, panelsEnabled, timer})
+  return res.json({
+    currentTemp,
+    targetTemp,
+    isWorking,
+    isOn,
+    isLightEnabled,
+    isColorEnabled,
+    panelsEnabled,
+    timer,
+  });
 }
 
 function getTemperature(sensorId) {
@@ -190,13 +211,13 @@ function getTemperature(sensorId) {
       currentTemp = 22;
     }
     if (isWorking) {
-      currentTemp+=0.3;
+      currentTemp += 0.3;
     } else {
-      if (currentTemp>15) {
-        currentTemp-=0.3;
+      if (currentTemp > 15) {
+        currentTemp -= 0.3;
       }
     }
-    return currentTemp
+    return currentTemp;
   } else {
     return ds18b20.temperatureSync(sensorId);
   }
@@ -205,7 +226,7 @@ function getTemperature(sensorId) {
 // get id of the first ds18b20 sensor we find
 function getSensorId() {
   if (SIMULATE) {
-    return "simulated-sensor"
+    return "simulated-sensor";
   } else {
     return new Promise((resolve, reject) => {
       ds18b20.sensors(function (err, ids) {
@@ -215,10 +236,10 @@ function getSensorId() {
           if (ids.length > 0) {
             resolve(ids[0]);
           } else {
-            reject(new Error("No temperature sensors found"))
+            reject(new Error("No temperature sensors found"));
           }
         }
       });
-    })
+    });
   }
 }
