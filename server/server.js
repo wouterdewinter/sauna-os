@@ -161,6 +161,8 @@ main();
 process.on("SIGINT", function () {
   console.log("Exiting");
   power = "off";
+  isLightEnabled = false;
+  isColorEnabled = false;
   updateSwitches();
   process.exit(0);
 });
