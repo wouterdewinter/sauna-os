@@ -4,10 +4,10 @@ const cors = require("cors");
 const path = require("path");
 const ds18b20 = require("ds18b20");
 
-const PORT = 8001;
+const PORT = 80;
 const LIGHT_SWITCH_NR = 5;
 const COLOR_SWITCH_NR = 6;
-const SIMULATE = true;
+const SIMULATE = false;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;

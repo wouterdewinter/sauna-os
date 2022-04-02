@@ -7,21 +7,14 @@ import {
   Fab,
   FormControlLabel,
   Grid,
-  IconButton,
   Switch,
   Typography,
 } from "@mui/material";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import {
-  Add,
-  Lightbulb,
-  LightbulbCircleOutlined,
-  Remove,
-  TipsAndUpdates,
-} from "@mui/icons-material";
+import { Add, Lightbulb, Remove, TipsAndUpdates } from "@mui/icons-material";
 
-//const url = "http://sauna.local:8001/";
-const url = "http://localhost:8001/";
+const url = "/";
+//const url = "http://localhost/";
 
 function App() {
   const initialStatus = {
