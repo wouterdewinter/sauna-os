@@ -9,8 +9,7 @@ function App() {
   const initialStatus = {
     currentTemp: 22.8,
     targetTemp: 25,
-    isWorking: false,
-    isOn: false,
+    power: "off",
     isLightEnabled: false,
     isColorEnabled: false,
     panelsEnabled: [true, true, true, true, true],
@@ -73,7 +72,7 @@ function App() {
           Power:
           <input
             type={"checkbox"}
-            checked={status.isOn}
+            checked={status.power !== "off"}
             onChange={togglePower}
           />
         </div>
@@ -93,7 +92,7 @@ function App() {
             onChange={toggleColor}
           />
         </div>
-        <div>Heating: {status.isWorking ? "yes" : "no"}</div>
+        <div>Heating: {status.power === "heating" ? "yes" : "no"}</div>
         <div>
           Timer: {Math.floor(status.timer / 60) + ":" + (status.timer % 60)}{" "}
           remaining
