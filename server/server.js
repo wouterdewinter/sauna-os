@@ -11,7 +11,7 @@ const SIMULATE = false;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;
-const DEFAULT_TIMER = 90;
+const DEFAULT_TIMER = 20 * 60;
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
