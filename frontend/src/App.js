@@ -178,46 +178,52 @@ function App() {
           </Grid>
         </Grid>
 
-        <label>
-          <input
-            type={"checkbox"}
-            checked={status.panelsEnabled[0]}
-            onChange={() => toggle(0)}
-          />
-          Links voor
-        </label>
-        <label>
-          <input
-            type={"checkbox"}
-            checked={status.panelsEnabled[1]}
-            onChange={() => toggle(1)}
-          />
-          Rechts voor
-        </label>
-        <label>
-          <input
-            type={"checkbox"}
-            checked={status.panelsEnabled[2]}
-            onChange={() => toggle(2)}
-          />
-          Links achter
-        </label>
-        <label>
-          <input
-            type={"checkbox"}
-            checked={status.panelsEnabled[3]}
-            onChange={() => toggle(3)}
-          />
-          Rechts achter
-        </label>
-        <label>
-          <input
-            type={"checkbox"}
-            checked={status.panelsEnabled[4]}
-            onChange={() => toggle(4)}
-          />
-          Onder
-        </label>
+        <br />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={status.panelsEnabled[0]}
+              onChange={() => toggle(0)}
+            />
+          }
+          label="Front left"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={status.panelsEnabled[1]}
+              onChange={() => toggle(1)}
+            />
+          }
+          label="Front right"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={status.panelsEnabled[2]}
+              onChange={() => toggle(2)}
+            />
+          }
+          label="Back left"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={status.panelsEnabled[3]}
+              onChange={() => toggle(3)}
+            />
+          }
+          label="Back right"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={status.panelsEnabled[4]}
+              onChange={() => toggle(4)}
+            />
+          }
+          label="Bottom"
+        />
       </header>
     </div>
   );
