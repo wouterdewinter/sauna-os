@@ -1,11 +1,22 @@
 import "./App.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Fab, FormControlLabel, IconButton, Switch } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Fab,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  Switch,
+  Typography,
+} from "@mui/material";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import {
+  Add,
   Lightbulb,
   LightbulbCircleOutlined,
+  Remove,
   TipsAndUpdates,
 } from "@mui/icons-material";
 
@@ -75,45 +86,98 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div>
-          <Fab
-            color={status.power === "off" ? "grey" : "primary"}
-            aria-label="add"
-            onClick={togglePower}
-          >
-            <PowerSettingsNewIcon color={"white"} fontSize={"large"} />
-          </Fab>
-        </div>
-        <div>
-          <Fab
-            color={status.isLightEnabled ? "primary" : "grey"}
-            aria-label="add"
-            onClick={toggleLight}
-          >
-            <Lightbulb color={"white"} fontSize={"large"} />
-          </Fab>
-        </div>
-        <div>
-          <Fab
-            color={status.isColorEnabled ? "primary" : "grey"}
-            aria-label="add"
-            onClick={toggleColor}
-          >
-            <TipsAndUpdates color={"white"} fontSize={"large"} />
-          </Fab>
-        </div>
-        <div>Heating: {status.power === "heating" ? "yes" : "no"}</div>
-        <div>
-          Timer: {Math.floor(status.timer / 60) + ":" + (status.timer % 60)}{" "}
-          remaining
-        </div>
-        <div>
-          Target temp: {status.targetTemp}
-          <button onClick={() => setTarget(status.targetTemp + 5)}>+</button>
-          <button onClick={() => setTarget(status.targetTemp - 5)}>-</button>
-        </div>
-        <CurrentTemp temp={status.currentTemp} />
+        <Grid container spacing={2} justifyContent={"center"}>
+          <Grid item>
+            <Fab
+              color={status.power === "off" ? "grey" : "primary"}
+              aria-label="add"
+              onClick={togglePower}
+            >
+              <PowerSettingsNewIcon color={"white"} fontSize={"large"} />
+            </Fab>
+          </Grid>
+          <Grid item>
+            <Fab
+              color={status.isLightEnabled ? "primary" : "grey"}
+              aria-label="add"
+              onClick={toggleLight}
+            >
+              <Lightbulb color={"white"} fontSize={"large"} />
+            </Fab>
+          </Grid>
+          <Grid item>
+            <Fab
+              color={status.isColorEnabled ? "primary" : "grey"}
+              aria-label="add"
+              onClick={toggleColor}
+            >
+              <TipsAndUpdates color={"white"} fontSize={"large"} />
+            </Fab>
+          </Grid>
+        </Grid>
         <br />
+        <Grid container spacing={2} justifyContent={"center"}>
+          <Grid item>
+            <Metric
+              label={"Heating"}
+              value={status.power === "heating" ? "yes" : "no"}
+            />
+          </Grid>
+          <Grid item>
+            <Metric
+              label={"Timer"}
+              value={
+                Math.floor(status.timer / 60) +
+                ":" +
+                `${status.timer % 60}`.padStart(2, "0")
+              }
+            />
+          </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={2} justifyContent={"center"}>
+          <Grid item>
+            <Metric label={"Target temperature"} value={status.targetTemp} />
+          </Grid>
+          <Grid item>
+            <Metric
+              label={"Current temperature"}
+              value={Math.round(status.currentTemp)}
+            />
+          </Grid>
+        </Grid>
+
+        <br />
+
+        <Grid container spacing={2} justifyContent={"center"}>
+          <Grid item>
+            <Fab
+              size={"small"}
+              onClick={() => setTarget(status.targetTemp - 1)}
+            >
+              <Remove color={"white"} fontSize={"small"} />
+            </Fab>
+          </Grid>
+          <Grid item>
+            <Fab onClick={() => setTarget(status.targetTemp - 5)}>
+              <Remove color={"white"} fontSize={"medium"} />
+            </Fab>
+          </Grid>
+          <Grid item>
+            <Fab onClick={() => setTarget(status.targetTemp + 5)}>
+              <Add color={"white"} fontSize={"medium"} />
+            </Fab>
+          </Grid>
+          <Grid item>
+            <Fab
+              onClick={() => setTarget(status.targetTemp + 1)}
+              size={"small"}
+            >
+              <Add color={"white"} fontSize={"small"} />
+            </Fab>
+          </Grid>
+        </Grid>
+
         <label>
           <input
             type={"checkbox"}
@@ -159,8 +223,19 @@ function App() {
   );
 }
 
-function CurrentTemp(props) {
-  return <div>Current: {props.temp || "-"}</div>;
+function Metric(props) {
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Typography variant="body2" color="text.secondary">
+          {props.label}
+        </Typography>
+        <Typography gutterBottom variant="h5" component="div">
+          {props.value}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default App;
