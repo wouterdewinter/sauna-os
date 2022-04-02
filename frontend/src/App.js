@@ -13,8 +13,9 @@ import {
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import { Add, Lightbulb, Remove, TipsAndUpdates } from "@mui/icons-material";
 
-const url = "/";
+//const url = "/";
 //const url = "http://localhost/";
+const url = "http://sauna.local/";
 
 function App() {
   const initialStatus = {
