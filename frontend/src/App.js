@@ -1,6 +1,13 @@
 import "./App.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Fab, FormControlLabel, IconButton, Switch } from "@mui/material";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import {
+  Lightbulb,
+  LightbulbCircleOutlined,
+  TipsAndUpdates,
+} from "@mui/icons-material";
 
 //const url = "http://sauna.local:8001/";
 const url = "http://localhost:8001/";
@@ -38,7 +45,7 @@ function App() {
 
   async function togglePower() {
     const response = await axios.get(
-      `${url}power/${!status.isOn ? "on" : "off"}`
+      `${url}power/${status.power === "off" ? "on" : "off"}`
     );
     setStatus(response.data);
   }
@@ -69,28 +76,31 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div>
-          Power:
-          <input
-            type={"checkbox"}
-            checked={status.power !== "off"}
-            onChange={togglePower}
-          />
+          <Fab
+            color={status.power === "off" ? "grey" : "primary"}
+            aria-label="add"
+            onClick={togglePower}
+          >
+            <PowerSettingsNewIcon color={"white"} fontSize={"large"} />
+          </Fab>
         </div>
         <div>
-          Light:
-          <input
-            type={"checkbox"}
-            checked={status.isLightEnabled}
-            onChange={toggleLight}
-          />
+          <Fab
+            color={status.isLightEnabled ? "primary" : "grey"}
+            aria-label="add"
+            onClick={toggleLight}
+          >
+            <Lightbulb color={"white"} fontSize={"large"} />
+          </Fab>
         </div>
         <div>
-          Color:
-          <input
-            type={"checkbox"}
-            checked={status.isColorEnabled}
-            onChange={toggleColor}
-          />
+          <Fab
+            color={status.isColorEnabled ? "primary" : "grey"}
+            aria-label="add"
+            onClick={toggleColor}
+          >
+            <TipsAndUpdates color={"white"} fontSize={"large"} />
+          </Fab>
         </div>
         <div>Heating: {status.power === "heating" ? "yes" : "no"}</div>
         <div>
