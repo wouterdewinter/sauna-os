@@ -129,8 +129,8 @@ async function main() {
 
   // main action loop, see if we need to take action
   setInterval(() => {
+    // turn off if timer expired
     if (isOn) {
-      // turn off if timer expired
       if (timer > 0) {
         timer--;
       } else {
@@ -138,9 +138,12 @@ async function main() {
         isWorking = false;
         updateSwitches();
       }
+    }
 
+    // check temperature related actions
+    if (isOn) {
       // check if we need to start heating
-      if (isOn && !isWorking && currentTemp < targetTemp * (1 - SENSITIVITY)) {
+      if (!isWorking && currentTemp < targetTemp * (1 - SENSITIVITY)) {
         isWorking = true;
         console.log("start heating");
         updateSwitches();
@@ -152,8 +155,6 @@ async function main() {
         console.log("stop heating");
         updateSwitches();
       }
-    } else {
-      // todo do some sanity checks?
     }
   }, 1000);
 }
