@@ -67,8 +67,7 @@ async function main() {
 
   app.get("/power/:enable", (req, res) => {
     isOn = req.params.enable === "on";
-    if (!isOn) {
-      isWorking = false;
+    if (isOn) {
       // reset timer to the default for a new session
       timer = DEFAULT_TIMER;
     }
