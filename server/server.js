@@ -5,8 +5,8 @@ const path = require("path");
 const ds18b20 = require("ds18b20");
 
 const PORT = 80;
-const LIGHT_SWITCH_NR = 0;
-const COLOR_SWITCH_NR = 1;
+const LIGHT_SWITCH_NR = 1;
+const COLOR_SWITCH_NR = 0;
 const SIMULATE = false;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
