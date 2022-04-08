@@ -7,6 +7,7 @@ import {
   Fab,
   FormControlLabel,
   Grid,
+  Paper,
   Switch,
   Typography,
 } from "@mui/material";
@@ -111,13 +112,13 @@ function App() {
         </Grid>
         <br />
         <Grid container spacing={2} justifyContent={"center"}>
-          <Grid item>
+          <Grid item xs={1}>
             <Metric
               label={"Heating"}
               value={status.power === "heating" ? "yes" : "no"}
             />
           </Grid>
-          <Grid item>
+          <Grid item xs={1}>
             <Metric
               label={"Timer"}
               value={
@@ -130,10 +131,10 @@ function App() {
         </Grid>
         <br />
         <Grid container spacing={2} justifyContent={"center"}>
-          <Grid item>
+          <Grid item xs={1}>
             <Metric label={"Target temperature"} value={status.targetTemp} />
           </Grid>
-          <Grid item>
+          <Grid item xs={1}>
             <Metric
               label={"Current temperature"}
               value={Math.round(status.currentTemp)}
@@ -225,16 +226,14 @@ function App() {
 
 function Metric(props) {
   return (
-    <Card variant="outlined">
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {props.label}
-        </Typography>
-        <Typography gutterBottom variant="h5" component="div">
-          {props.value}
-        </Typography>
-      </CardContent>
-    </Card>
+    <Paper style={{ padding: "10px" }}>
+      <Typography variant="body2" color="text.secondary">
+        {props.label}
+      </Typography>
+      <Typography gutterBottom variant="h5" component="div">
+        {props.value}
+      </Typography>
+    </Paper>
   );
 }
 

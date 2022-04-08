@@ -5,13 +5,13 @@ const path = require("path");
 const ds18b20 = require("ds18b20");
 
 const PORT = 80;
-const LIGHT_SWITCH_NR = 5;
-const COLOR_SWITCH_NR = 6;
+const LIGHT_SWITCH_NR = 0;
+const COLOR_SWITCH_NR = 1;
 const SIMULATE = false;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;
-const DEFAULT_TIMER = 20 * 60;
+const DEFAULT_TIMER = 30 * 60;
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
@@ -170,19 +170,19 @@ process.on("SIGINT", function () {
 function updateSwitches() {
   console.log("updating switches");
   if (!SIMULATE) {
-    switches[0].writeSync(
+    switches[2].writeSync(
       power === "heating" && panelsEnabled[0] ? Gpio.HIGH : Gpio.LOW
     );
-    switches[1].writeSync(
+    switches[3].writeSync(
       power === "heating" && panelsEnabled[1] ? Gpio.HIGH : Gpio.LOW
     );
-    switches[2].writeSync(
+    switches[4].writeSync(
       power === "heating" && panelsEnabled[2] ? Gpio.HIGH : Gpio.LOW
     );
-    switches[3].writeSync(
+    switches[5].writeSync(
       power === "heating" && panelsEnabled[3] ? Gpio.HIGH : Gpio.LOW
     );
-    switches[4].writeSync(
+    switches[6].writeSync(
       power === "heating" && panelsEnabled[4] ? Gpio.HIGH : Gpio.LOW
     );
     switches[LIGHT_SWITCH_NR].writeSync(isLightEnabled ? Gpio.HIGH : Gpio.LOW);
