@@ -181,7 +181,7 @@ function App() {
               onChange={() => toggle(0)}
             />
           }
-          label="Front left"
+          label="Front right"
         />
         <FormControlLabel
           control={
@@ -190,7 +190,7 @@ function App() {
               onChange={() => toggle(1)}
             />
           }
-          label="Front right"
+          label="Back right + bottom"
         />
         <FormControlLabel
           control={
@@ -199,7 +199,7 @@ function App() {
               onChange={() => toggle(2)}
             />
           }
-          label="Back left"
+          label="Front left"
         />
         <FormControlLabel
           control={
@@ -208,16 +208,7 @@ function App() {
               onChange={() => toggle(3)}
             />
           }
-          label="Back right"
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={status.panelsEnabled[4]}
-              onChange={() => toggle(4)}
-            />
-          }
-          label="Bottom"
+          label="Back left"
         />
       </header>
     </div>
