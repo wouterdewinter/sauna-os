@@ -7,11 +7,13 @@ const ds18b20 = require("ds18b20");
 const PORT = 80;
 const LIGHT_SWITCH_NR = 1;
 const COLOR_SWITCH_NR = 0;
-const SIMULATE = false;
+const SIMULATE = true;
 const SENSITIVITY = 0.05;
 const MAX_TEMP = 80;
 const MIN_TEMP = 20;
 const DEFAULT_TIMER = 30 * 60;
+
+// /sys/class/gpio/export
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
@@ -82,6 +84,11 @@ async function main() {
   app.get("/color/:enable", (req, res) => {
     isColorEnabled = req.params.enable === "on";
     updateSwitches();
+    return returnStatus(res);
+  });
+
+  app.get("/timer/reset", (req, res) => {
+    timer = DEFAULT_TIMER;
     return returnStatus(res);
   });
 

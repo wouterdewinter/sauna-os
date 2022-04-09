@@ -2,8 +2,7 @@ import "./App.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import {
-  Card,
-  CardContent,
+  Button,
   Fab,
   FormControlLabel,
   Grid,
@@ -14,9 +13,9 @@ import {
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import { Add, Lightbulb, Remove, TipsAndUpdates } from "@mui/icons-material";
 
-//const url = "/";
+const url = "/";
 //const url = "http://localhost/";
-const url = "http://sauna.local/";
+//const url = "http://sauna.local/";
 
 function App() {
   const initialStatus = {
@@ -35,7 +34,7 @@ function App() {
     const id = setInterval(async () => {
       const response = await axios.get(url + "status");
       setStatus(response.data);
-    }, 3000);
+    }, 1000);
     return () => clearInterval(id);
   });
 
@@ -75,6 +74,11 @@ function App() {
     const response = await axios.get(`${url}target`, {
       params: { targetTemp },
     });
+    setStatus(response.data);
+  }
+
+  async function timerReset() {
+    const response = await axios.get(`${url}timer/reset`);
     setStatus(response.data);
   }
 
@@ -126,17 +130,25 @@ function App() {
                 ":" +
                 `${status.timer % 60}`.padStart(2, "0")
               }
-            />
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => timerReset()}
+              >
+                Reset
+              </Button>
+            </Metric>
           </Grid>
         </Grid>
         <br />
         <Grid container spacing={2} justifyContent={"center"}>
           <Grid item xs={1}>
-            <Metric label={"Target temperature"} value={status.targetTemp} />
+            <Metric label={"Target temp"} value={status.targetTemp} />
           </Grid>
           <Grid item xs={1}>
             <Metric
-              label={"Current temperature"}
+              label={"Current temp"}
               value={Math.round(status.currentTemp)}
             />
           </Grid>
@@ -217,13 +229,16 @@ function App() {
 
 function Metric(props) {
   return (
-    <Paper style={{ padding: "10px" }}>
-      <Typography variant="body2" color="text.secondary">
-        {props.label}
-      </Typography>
-      <Typography gutterBottom variant="h5" component="div">
-        {props.value}
-      </Typography>
+    <Paper style={{ height: "100%" }}>
+      <div style={{ padding: "10px" }}>
+        <Typography variant="body2" color="text.secondary">
+          {props.label}
+        </Typography>
+        <Typography gutterBottom variant="h5" component="div">
+          {props.value}
+        </Typography>
+        {props.children}
+      </div>
     </Paper>
   );
 }
