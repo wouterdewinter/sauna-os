@@ -3,17 +3,31 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const ds18b20 = require("ds18b20");
+const fs = require("fs");
 
+// port to run server on
 const PORT = 80;
-const LIGHT_SWITCH_NR = 1;
-const COLOR_SWITCH_NR = 0;
-const SIMULATE = true;
-const SENSITIVITY = 0.05;
-const MAX_TEMP = 80;
-const MIN_TEMP = 20;
-const DEFAULT_TIMER = 30 * 60;
 
-// /sys/class/gpio/export
+// relay number of the light
+const LIGHT_SWITCH_NR = 1;
+
+// relay number of the color
+const COLOR_SWITCH_NR = 0;
+
+// simulate mode, automatically activated if gpio libraries do not exist
+const SIMULATE = !fs.existsSync("/sys/class/gpio/export");
+
+// how much % does temperature need to be above or below target to switch on/off
+const SENSITIVITY = 0.05;
+
+// max temperature to configure
+const MAX_TEMP = 80;
+
+// min temperature to configure
+const MIN_TEMP = 20;
+
+// default setting for the timer, will stop heating after timer expires
+const DEFAULT_TIMER = 30 * 60;
 
 // tutorial for enabling the one-wire interface:
 // https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
