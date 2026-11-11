@@ -1,1 +1,4 @@
 /server/node_modules/
+
+# usage log (SQLite)
+/server/data/
