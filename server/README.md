@@ -43,7 +43,13 @@ This is the server-side code for Sauna-OS, a Raspberry Pi-based system for manag
 - `/status`: Get the current status of the sauna
 - `/target`: Set the target temperature
 - `/temp`: Get the current temperature
+- `/stats`: Usage statistics (sessions in the last 12 months, per month, averages, recent sessions)
+- `/stats/session/:id`: Temperature samples of a single session
 - `/set`: Set the state of a specific heating panel
+
+## Usage log
+
+Every session (power on until power off) is logged to a SQLite database at `server/data/sauna.db`, with a temperature sample every 30 seconds. The location can be changed with the `SAUNA_DB` environment variable. Sessions shorter than 5 minutes are stored but not counted in the statistics. The file can be inspected with the regular `sqlite3` command line tool.
 
 ## Configuration
 

@@ -11,7 +11,14 @@ import {
   Typography,
 } from "@mui/material";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import { Add, Lightbulb, Remove, TipsAndUpdates } from "@mui/icons-material";
+import {
+  Add,
+  BarChart,
+  Lightbulb,
+  Remove,
+  TipsAndUpdates,
+} from "@mui/icons-material";
+import Stats from "./Stats";
 
 const url = "/";
 //const url = "http://localhost/";
@@ -29,6 +36,7 @@ function App() {
   };
 
   const [status, setStatus] = useState(initialStatus);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   useEffect(() => {
     const id = setInterval(async () => {
@@ -222,6 +230,20 @@ function App() {
               />
             }
             label="Front left"
+          />
+          <br />
+          <br />
+          <Button
+            variant="contained"
+            startIcon={<BarChart />}
+            onClick={() => setStatsOpen(true)}
+          >
+            Statistics
+          </Button>
+          <Stats
+            url={url}
+            open={statsOpen}
+            onClose={() => setStatsOpen(false)}
           />
         </div>
       </header>

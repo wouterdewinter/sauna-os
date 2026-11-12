@@ -4,9 +4,10 @@ const cors = require("cors");
 const path = require("path");
 const ds18b20 = require("ds18b20");
 const fs = require("fs");
+const stats = require("./stats");
 
 // port to run server on
-const PORT = 80;
+const PORT = process.env.PORT || 80;
 
 // relay number of the light
 const LIGHT_SWITCH_NR = 1;
@@ -67,6 +68,9 @@ async function main() {
   // make sure the switches reflect the current status
   updateSwitches();
 
+  // open the usage log
+  await stats.init();
+
   // setup express app with cors
   const app = express();
   app.use(cors());
@@ -84,6 +88,9 @@ async function main() {
     if (power !== "off") {
       // reset timer to the default for a new session
       timer = DEFAULT_TIMER;
+      stats.startSession(getState());
+    } else {
+      stats.endSession(getState(), "manual");
     }
     updateSwitches();
     return returnStatus(res);
@@ -121,6 +128,14 @@ async function main() {
     return returnStatus(res);
   });
 
+  app.get("/stats", (req, res) => {
+    res.json(stats.getStats());
+  });
+
+  app.get("/stats/session/:id", (req, res) => {
+    res.json(stats.getSession(Number(req.params.id)));
+  });
+
   app.get("/temp", (req, res) => {
     res.json({ temp: currentTemp });
   });
@@ -154,6 +169,7 @@ async function main() {
       } else {
         power = "off";
         updateSwitches();
+        stats.endSession(getState(), "timer");
       }
     }
 
@@ -173,6 +189,8 @@ async function main() {
         updateSwitches();
       }
     }
+
+    stats.tick(getState());
   }, 1000);
 }
 
@@ -185,6 +203,7 @@ process.on("SIGINT", function () {
   isLightEnabled = false;
   isColorEnabled = false;
   updateSwitches();
+  stats.endSession(getState(), "shutdown");
   process.exit(0);
 });
 
@@ -209,6 +228,10 @@ function updateSwitches() {
     switches[LIGHT_SWITCH_NR].writeSync(isLightEnabled ? Gpio.HIGH : Gpio.LOW);
     switches[COLOR_SWITCH_NR].writeSync(isColorEnabled ? Gpio.HIGH : Gpio.LOW);
   }
+}
+
+function getState() {
+  return { power, currentTemp, targetTemp };
 }
 
 function returnStatus(res) {
